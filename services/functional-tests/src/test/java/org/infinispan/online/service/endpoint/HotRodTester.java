@@ -218,4 +218,11 @@ public class HotRodTester implements EndpointTester {
       assertEquals("value", stringCache.get(hotRodKey));
    }
 
+   public void namedCacheGetTest(String cacheName) {
+      //given
+      RemoteCache<String, String> stringCache = cacheManager.getCache(cacheName);
+      //then
+      assertEquals("value", stringCache.get(hotRodKey));
+   }
+
 }
