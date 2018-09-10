@@ -204,7 +204,8 @@
                               }
                            }
                         ],
-                        "image": "${IMAGE}",
+                        "image": "jboss-datagrid72-openshift",
+                        "imagePullPolicy": "Always",
                         "livenessProbe": {
                            "exec": {
                               "command": [
@@ -288,6 +289,20 @@
                }
             },
             "triggers": [
+               {
+                  "type": "ImageChange",
+                  "imageChangeParams": {
+                     "automatic": true,
+                     "containerNames": [
+                        "${APPLICATION_NAME}"
+                     ],
+                     "from": {
+                        "kind": "ImageStreamTag",
+                        "namespace": "openshift",
+                        "name": "jboss-datagrid72-openshift:1.2"
+                     }
+                  }
+               },
                {
                   "type": "ConfigChange"
                }
