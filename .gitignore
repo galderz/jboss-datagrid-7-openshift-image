@@ -102,3 +102,5 @@ buildNumber.properties
 # End of https://www.gitignore.io/api/java,maven,intellij+all
 
 target-docker/
+
+openshift.local.clusterup
