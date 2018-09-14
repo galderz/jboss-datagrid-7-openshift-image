@@ -159,6 +159,9 @@
             },
             "template": {
                "metadata": {
+                  "annotations": {
+                     "alpha.image.policy.openshift.io/resolve-names": "'*'"
+                  },
                   "labels": {
                      "application": "${APPLICATION_NAME}",
                      "deploymentConfig": "${APPLICATION_NAME}"
