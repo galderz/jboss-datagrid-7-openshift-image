@@ -139,6 +139,9 @@
          "apiVersion": "apps/v1beta1",
          "kind": "StatefulSet",
          "metadata": {
+            "annotations": {
+               "alpha.image.policy.openshift.io/resolve-names": "'*'"
+            },
             "labels": {
                "application": "${APPLICATION_NAME}"
             },
@@ -159,9 +162,6 @@
             },
             "template": {
                "metadata": {
-                  "annotations": {
-                     "alpha.image.policy.openshift.io/resolve-names": "'*'"
-                  },
                   "labels": {
                      "application": "${APPLICATION_NAME}",
                      "deploymentConfig": "${APPLICATION_NAME}"
