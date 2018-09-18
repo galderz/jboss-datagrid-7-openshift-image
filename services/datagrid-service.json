@@ -140,7 +140,8 @@
          "kind": "StatefulSet",
          "metadata": {
             "annotations": {
-               "alpha.image.policy.openshift.io/resolve-names": "'*'"
+               "alpha.image.policy.openshift.io/resolve-names": "*",
+               "image.openshift.io/triggers": "[{\"from\":{\"kind\":\"ImageStreamTag\",\"name\":\"jboss-datagrid72-openshift:1.2\"},\"fieldPath\":\"spec.template.spec.containers[?(@.name==\\\"datagrid-service\\\")].image\"}]"
             },
             "labels": {
                "application": "${APPLICATION_NAME}"
@@ -207,7 +208,7 @@
                               }
                            }
                         ],
-                        "image": "jboss-datagrid72-openshift",
+                        "image": "jboss-datagrid72-openshift:1.2",
                         "imagePullPolicy": "Always",
                         "livenessProbe": {
                            "exec": {
@@ -291,25 +292,6 @@
                   "terminationGracePeriodSeconds": 60
                }
             },
-            "triggers": [
-               {
-                  "type": "ImageChange",
-                  "imageChangeParams": {
-                     "automatic": true,
-                     "containerNames": [
-                        "${APPLICATION_NAME}"
-                     ],
-                     "from": {
-                        "kind": "ImageStreamTag",
-                        "namespace": "openshift",
-                        "name": "jboss-datagrid72-openshift:1.2"
-                     }
-                  }
-               },
-               {
-                  "type": "ConfigChange"
-               }
-            ],
             "volumeClaimTemplates": [
                {
                   "metadata": {

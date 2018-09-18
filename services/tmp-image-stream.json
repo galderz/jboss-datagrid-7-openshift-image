@@ -21,6 +21,9 @@
             }
          },
          "spec": {
+            "lookupPolicy": {
+               "local": true
+            },
             "tags": [
                {
                   "name": "1.0",
