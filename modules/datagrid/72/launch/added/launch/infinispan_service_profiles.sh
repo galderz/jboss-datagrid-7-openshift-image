@@ -53,6 +53,8 @@ function configure() {
          # EVICTION_TOTAL_MEMORY_B exported by adjust_memory.sh
          source ${JBOSS_HOME}/bin/launch/adjust_memory.sh
          export DEFAULT_CACHE_MEMORY_EVICTION_SIZE=${EVICTION_TOTAL_MEMORY_B}
+
+         export PROFILE_CACHE_CONFIGURATIONS=""
       elif [ "${SERVICE_PROFILE}" == "datagrid-service" ]; then
          SERVICE_NAME=${SERVICE_NAME:-datagrid-service}
 
@@ -70,6 +72,30 @@ function configure() {
          export DEFAULT_CACHE_PARTITION_HANDLING_MERGE_POLICY="REMOVE_ALL"
          export DEFAULT_CACHE_MEMORY_STORAGE_TYPE="off-heap"
          export ENABLE_OVERLAY_CONFIGURATION_STORAGE="true"
+
+         export PROFILE_CACHE_CONFIGURATIONS="\
+            <distributed-cache-configuration name="persistent-indexed">\
+               <indexing index="PRIMARY_OWNER">\
+                  <property name="default.indexmanager">org.infinispan.query.indexmanager.InfinispanIndexManager</property>\
+                  <property name="default.metadata_cachename">indexMetadata</property>\
+                  <property name="default.data_cachename">indexData</property>\
+                  <property name="default.locking_cachename">indexLocking</property>\
+               </indexing>\
+               <file-store shared="false" fetch-state="true" passivation="false"/>\
+            </distributed-cache-configuration>\
+            <replicated-cache name="indexLocking">\
+               <indexing index="NONE" />\
+               <file-store shared="false" fetch-state="true" passivation="false"/>\
+            </replicated-cache>\
+            <replicated-cache name="indexMetadata">\
+               <indexing index="NONE" />\
+               <file-store shared="false" fetch-state="true" passivation="false"/>\
+            </replicated-cache>\
+            <distributed-cache name="indexData">\
+               <indexing index="NONE" />\
+               <file-store shared="false" fetch-state="true" passivation="false"/>\
+            </distributed-cache>\
+         "
       fi
    fi
 }
