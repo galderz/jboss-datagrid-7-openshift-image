@@ -74,27 +74,27 @@ function configure() {
          export ENABLE_OVERLAY_CONFIGURATION_STORAGE="true"
 
          export PROFILE_CACHE_CONFIGURATIONS="\
-            <distributed-cache-configuration name=\"persistent-indexed\">\
-               <indexing index=\"LOCAL\">\
-                  <property name=\"default.indexmanager\">org.infinispan.query.indexmanager.InfinispanIndexManager</property>\
-                  <property name=\"default.metadata_cachename\">indexMetadata</property>\
-                  <property name=\"default.data_cachename\">indexData</property>\
-                  <property name=\"default.locking_cachename\">indexLocking</property>\
-               </indexing>\
-               <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\
-            </distributed-cache-configuration>\
-            <replicated-cache name=\"indexLocking\">\
-               <indexing index=\"NONE\"/>\
-               <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\
-            </replicated-cache>\
-            <replicated-cache name=\"indexMetadata\">\
-               <indexing index=\"NONE\"/>\
-               <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\
-            </replicated-cache>\
-            <distributed-cache name=\"indexData\">\
-               <indexing index=\"NONE\"/>\
-               <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\
-            </distributed-cache>\
+            <distributed-cache-configuration name=\"persistent-indexed\">\n
+               <indexing index=\"LOCAL\">\n
+                  <property name=\"default.indexmanager\">org.infinispan.query.indexmanager.InfinispanIndexManager</property>\n
+                  <property name=\"default.metadata_cachename\">indexMetadata</property>\n
+                  <property name=\"default.data_cachename\">indexData</property>\n
+                  <property name=\"default.locking_cachename\">indexLocking</property>\n
+               </indexing>\n
+               <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\n
+            </distributed-cache-configuration>\n
+            <replicated-cache name=\"indexLocking\">\n
+               <indexing index=\"NONE\"/>\n
+               <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\n
+            </replicated-cache>\n
+            <replicated-cache name=\"indexMetadata\">\n
+               <indexing index=\"NONE\"/>\n
+               <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\n
+            </replicated-cache>\n
+            <distributed-cache name=\"indexData\">\n
+               <indexing index=\"NONE\"/>\n
+               <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\n
+            </distributed-cache>\n
          "
       fi
    fi
