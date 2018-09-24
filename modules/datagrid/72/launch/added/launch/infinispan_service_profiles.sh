@@ -75,7 +75,7 @@ function configure() {
 
          export PROFILE_CACHE_CONFIGURATIONS="\
             <distributed-cache-configuration name=\"persistent-indexed\">\
-               <indexing index=\"PRIMARY_OWNER\">\
+               <indexing index=\"LOCAL\">\
                   <property name=\"default.indexmanager\">org.infinispan.query.indexmanager.InfinispanIndexManager</property>\
                   <property name=\"default.metadata_cachename\">indexMetadata</property>\
                   <property name=\"default.data_cachename\">indexData</property>\
