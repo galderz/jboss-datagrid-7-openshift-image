@@ -80,7 +80,8 @@ public class PersistedIndexSurvivesTest {
          .addAsLibraries(DeploymentHelper.testLibs())
          .addPackage(ReadinessCheck.class.getPackage())
          .addPackage(ScalingTester.class.getPackage())
-         .addPackage(HotRodTester.class.getPackage());
+         .addPackage(HotRodTester.class.getPackage())
+         .addPackage(AnalyzerTestEntity.class.getPackage());
    }
 
    @Before
