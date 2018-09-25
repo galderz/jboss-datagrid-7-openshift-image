@@ -5,10 +5,10 @@ set -x
 delete_stateful_set() {
   local service=$1
 
-  grace=$(kubectl get pods $service-0 --template '{{.spec.terminationGracePeriodSeconds}}')
-  kubectl delete statefulset -l application=$service
+  grace=$(oc get pods $service-0 --template '{{.spec.terminationGracePeriodSeconds}}')
+  oc delete statefulset -l application=$service
   sleep $grace
-  kubectl delete pvc -l application=$service
+  oc delete pvc -l application=$service
 }
 
 # This name is hardcoded in Makefile. We need a fixed name to push it to local OpenShift registry
