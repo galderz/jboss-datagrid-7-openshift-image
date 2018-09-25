@@ -103,24 +103,33 @@ public class HotRodTester implements EndpointTester {
    }
 
    private RemoteCacheManager getRemoteCacheManager(URL urlToService, boolean authenticate) {
-      Configuration cachingServiceClientConfiguration = new ConfigurationBuilder()
-            .addServer()
+      ConfigurationBuilder cachingServiceClientConfiguration =
+         baseClientConfiguration(urlToService, authenticate, trustStore, serviceName);
+
+      return new RemoteCacheManager(cachingServiceClientConfiguration.build());
+   }
+
+   public static ConfigurationBuilder baseClientConfiguration(URL urlToService, boolean authenticate, TrustStore trustStore, String serviceName) {
+      final ConfigurationBuilder config = new ConfigurationBuilder();
+
+      config
+         .addServer()
             .host(urlToService.getHost())
             .port(urlToService.getPort())
-            .security()
-            .ssl().enabled(true)
+         .security().ssl()
+            .enabled(true)
             .trustStoreFileName(trustStore.getPath())
             .trustStorePassword(TrustStore.TRUSTSTORE_PASSWORD)
-            .authentication().enabled(authenticate)
+         .authentication()
+            .enabled(authenticate)
             .username("test")
             .password("test")
             .realm("ApplicationRealm")
             .saslMechanism("DIGEST-MD5")
             .saslQop(SaslQop.AUTH)
-            .serverName(serviceName)
-            .build();
+            .serverName(serviceName);
 
-      return new RemoteCacheManager(cachingServiceClientConfiguration);
+      return config;
    }
 
    public void putGetTest() {
