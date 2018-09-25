@@ -101,6 +101,7 @@ public class PersistedIndexSurvivesTest {
       cfg.marshaller(new ProtoStreamMarshaller());
 
       remoteCacheManager = new RemoteCacheManager(cfg.build());
+      initProtoSchema(remoteCacheManager);
 
       remoteCacheManager.administration()
          .withFlags(CacheContainerAdmin.AdminFlag.PERMANENT)
