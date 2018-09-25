@@ -89,7 +89,7 @@ function configure() {
             </replicated-cache>\
             <replicated-cache name=\"indexMetadata\">\
                <indexing index=\"NONE\"/>\
-               <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\
+               <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\" preload=\"true\"/>\
             </replicated-cache>\
             <distributed-cache name=\"indexData\">\
                <indexing index=\"NONE\"/>\
