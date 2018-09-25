@@ -20,8 +20,8 @@ echo "---- EAP Testrunner logs  ----"
 oc logs testrunner
 
 echo "---- Clearing up test resources ---"
-oc delete all,secrets,sa,templates,configmaps,daemonsets,clusterroles,rolebindings,serviceaccounts --selector=template=cache-service || true
-oc delete all,secrets,sa,templates,configmaps,daemonsets,clusterroles,rolebindings,serviceaccounts --selector=template=datagrid-service || true
+oc delete all,secrets,sa,templates,configmaps,daemonsets,clusterroles,rolebindings,serviceaccounts,statefulsets --selector=template=cache-service || true
+oc delete all,secrets,sa,templates,configmaps,daemonsets,clusterroles,rolebindings,serviceaccounts,statefulsets --selector=template=datagrid-service || true
 oc delete template cache-service || true
 oc delete template datagrid-service || true
 oc delete service testrunner-http || true
