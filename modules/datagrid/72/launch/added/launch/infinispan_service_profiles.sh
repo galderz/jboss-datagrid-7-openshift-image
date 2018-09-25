@@ -77,21 +77,21 @@ function configure() {
             <distributed-cache-configuration name=\"persistent-indexed\">\
                <indexing index=\"LOCAL\">\
                   <property name=\"default.indexmanager\">org.infinispan.query.indexmanager.InfinispanIndexManager</property>\
-                  <property name=\"default.metadata_cachename\">indexMetadata</property>\
-                  <property name=\"default.data_cachename\">indexData</property>\
-                  <property name=\"default.locking_cachename\">indexLocking</property>\
+                  <property name=\"default.metadata_cachename\">persistent-index-metadata</property>\
+                  <property name=\"default.data_cachename\">persistent-index-data</property>\
+                  <property name=\"default.locking_cachename\">persistent-index-locking</property>\
                </indexing>\
                <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\
             </distributed-cache-configuration>\
-            <replicated-cache name=\"indexLocking\">\
+            <replicated-cache name=\"persistent-index-locking\">\
                <indexing index=\"NONE\"/>\
                <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\
             </replicated-cache>\
-            <replicated-cache name=\"indexMetadata\">\
+            <replicated-cache name=\"persistent-index-metadata\">\
                <indexing index=\"NONE\"/>\
                <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\" preload=\"true\"/>\
             </replicated-cache>\
-            <distributed-cache name=\"indexData\">\
+            <distributed-cache name=\"ipersistent-index-data\">\
                <indexing index=\"NONE\"/>\
                <file-store shared=\"false\" fetch-state=\"true\" passivation=\"false\"/>\
             </distributed-cache>\
