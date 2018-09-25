@@ -2,6 +2,15 @@
 
 set -x
 
+delete_stateful_set() {
+  local service=$1
+
+  grace=$(kubectl get pods $service-0 --template '{{.spec.terminationGracePeriodSeconds}}')
+  kubectl delete statefulset -l application=$service
+  sleep $grace
+  kubectl delete pvc -l application=$service
+}
+
 echo "---- Printing out test resources ----"
 oc get all,secrets,sa,templates,configmaps,daemonsets,clusterroles,rolebindings,serviceaccounts
 
@@ -30,12 +39,3 @@ delete_stateful_set caching-service
 delete_stateful_set datagrid-service
 oc delete service testrunner-http || true
 oc delete route testrunner || true
-
-delete_stateful_set() {
-  local service=$1
-
-  grace=$(kubectl get pods $service-0 --template '{{.spec.terminationGracePeriodSeconds}}')
-  kubectl delete statefulset -l application=$service
-  sleep $grace
-  kubectl delete pvc -l application=$service
-}
