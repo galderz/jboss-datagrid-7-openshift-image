@@ -5,7 +5,8 @@ set -x
 delete_stateful_set() {
   local service=$1
 
-  grace=$(oc get pods $service-0 --template '{{.spec.terminationGracePeriodSeconds}}')
+  # grace=$(oc get pods $service-0 --template '{{.spec.terminationGracePeriodSeconds}}')
+  grace=60
   oc delete statefulset -l application=$service
   sleep $grace
   oc delete pvc -l application=$service
@@ -31,11 +32,11 @@ echo "---- EAP Testrunner logs  ----"
 oc logs testrunner
 
 echo "---- Clearing up test resources ---"
+delete_stateful_set cache-service
+delete_stateful_set datagrid-service
 oc delete all,secrets,sa,templates,configmaps,daemonsets,clusterroles,rolebindings,serviceaccounts,statefulsets --selector=template=cache-service || true
 oc delete all,secrets,sa,templates,configmaps,daemonsets,clusterroles,rolebindings,serviceaccounts,statefulsets --selector=template=datagrid-service || true
 oc delete template cache-service || true
 oc delete template datagrid-service || true
-delete_stateful_set caching-service
-delete_stateful_set datagrid-service
 oc delete service testrunner-http || true
 oc delete route testrunner || true
