@@ -235,7 +235,13 @@ function configure_infinispan_core() {
     global_state="<global-state/>"
   fi
 
-  containers="$containers $global_state ${cache_container_configuration} $PROFILE_CACHE_CONFIGURATIONS"
+  containers="$containers $global_state ${cache_container_configuration}"
+
+  if [ -n "$PROFILE_CACHE_CONFIGURATIONS" ]; then
+    local profile_cache_configurations=$(cat "${PROFILE_CACHE_CONFIGURATIONS}" | sed ':a;N;$!ba;s|\n|\\n|g')
+    containers="$containers ${profile_cache_configurations}"
+  fi
+
   containers="$containers $containersecurity <!-- ##INFINISPAN_CACHE## --></cache-container>"
 
   sed -i "s|<!-- ##INFINISPAN_CORE## -->|$containers|" "$CONFIG_FILE"
