@@ -149,12 +149,12 @@ push-image-common:
 .PHONY: push-image-common
 
 test-functional: deploy-testrunner-route
-	oc delete route testrunner || true
-	oc delete service testrunner-http || true
 	$(MVN_COMMAND) -Dimage=$(_DEV_IMAGE_STREAM) -Dkubernetes.auth.token=$(shell oc whoami -t) -DDOCKER_REGISTRY_REDHAT=$(DOCKER_REGISTRY_REDHAT) -DTESTRUNNER_HOST=$(shell oc get routes | grep testrunner | awk '{print $$2}') -DTESTRUNNER_PORT=${_TESTRUNNER_PORT} clean test -f services/functional-tests/pom.xml $(ADDITIONAL_ARGUMENTS)
 .PHONY: test-functional
 
 deploy-testrunner-route:
+	oc delete route testrunner || true
+	oc delete service testrunner-http || true
 	oc create -f ./services/functional-tests/src/test/resources/eap7-testrunner-service.json
 	oc create -f ./services/functional-tests/src/test/resources/eap7-testrunner-route.json
 .PHONY: deploy-testrunner-route
