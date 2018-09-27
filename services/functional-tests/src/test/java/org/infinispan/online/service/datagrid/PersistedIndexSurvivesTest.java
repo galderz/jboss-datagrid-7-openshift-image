@@ -15,6 +15,7 @@ import org.infinispan.online.service.endpoint.HotRodTester;
 import org.infinispan.online.service.scaling.ScalingTester;
 import org.infinispan.online.service.testdomain.AnalyzerTestEntity;
 import org.infinispan.online.service.testdomain.AnalyzerTestEntityMarshaller;
+import org.infinispan.online.service.utils.DataGrid;
 import org.infinispan.online.service.utils.DeploymentHelper;
 import org.infinispan.online.service.utils.OpenShiftClientCreator;
 import org.infinispan.online.service.utils.OpenShiftCommandlineClient;
@@ -39,8 +40,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 
@@ -70,9 +73,6 @@ public class PersistedIndexSurvivesTest {
    private ScalingTester scalingTester = new ScalingTester();
    private OpenShiftCommandlineClient commandlineClient = new OpenShiftCommandlineClient();
 
-   private RemoteCacheManager remoteCacheManager;
-   private RemoteCache<String, AnalyzerTestEntity> cache;
-
    @Deployment
    public static Archive<?> deploymentApp() {
       return ShrinkWrap
@@ -91,37 +91,55 @@ public class PersistedIndexSurvivesTest {
 
    @InSequence(1)
    @Test
-   public void put_on_persisted_cache() throws Exception {
-      URL hotRodService = handle.getServiceWithName(SERVICE_NAME + "-hotrod");
+   public void put_on_persisted_cache() {
+      Function<RemoteCacheManager, RemoteCacheManager> test =
+         remoteCacheManager -> {
+            initProtoSchema(remoteCacheManager);
+
+            remoteCacheManager.administration()
+               .withFlags(CacheContainerAdmin.AdminFlag.PERMANENT)
+               .createCache("custom-persistent-indexed", "persistent-shared-indexed");
+
+            RemoteCache<String, AnalyzerTestEntity> cache =
+               remoteCacheManager.getCache("custom-persistent-indexed");
+
+            cache.put("analyzed1", new AnalyzerTestEntity("tested 123", 3));
+            cache.put("analyzed2", new AnalyzerTestEntity("testing 1234", 3));
+            cache.put("analyzed3", new AnalyzerTestEntity("xyz", null));
+
+            return remoteCacheManager;
+         };
+
+      DataGrid
+         .withRemoteCacheManager(test)
+         .apply(createClientConfiguration());
+   }
+
+   private ConfigurationBuilder createClientConfiguration() {
+      URL hotRodService = getServiceWithName();
       final TrustStore trustStore = new TrustStore(client, SERVICE_NAME);
 
       final ConfigurationBuilder cfg =
          HotRodTester.baseClientConfiguration(hotRodService, true, trustStore, SERVICE_NAME);
 
       cfg.marshaller(new ProtoStreamMarshaller());
+      return cfg;
+   }
 
-      remoteCacheManager = new RemoteCacheManager(cfg.build());
-      initProtoSchema(remoteCacheManager);
-
-      remoteCacheManager.administration()
-         .withFlags(CacheContainerAdmin.AdminFlag.PERMANENT)
-         .createCache("custom-persistent-indexed", "persistent-shared-indexed");
-
-      cache = remoteCacheManager.getCache("custom-persistent-indexed");
-
-      cache.put("analyzed1", new AnalyzerTestEntity("tested 123", 3));
-      cache.put("analyzed2", new AnalyzerTestEntity("testing 1234", 3));
-      cache.put("analyzed3", new AnalyzerTestEntity("xyz", null));
+   private URL getServiceWithName() {
+      try {
+         return handle.getServiceWithName(SERVICE_NAME + "-hotrod");
+      } catch (MalformedURLException e) {
+         throw new AssertionError(e);
+      }
    }
 
    @InSequence(2)
    @Test
    public void query_data_after_put() {
-      final QueryFactory queryFactory = Search.getQueryFactory(cache);
-      final Query query = queryFactory
-         .create("from sample_bank_account.AnalyzerTestEntity where f1:'test'");
-      List<AnalyzerTestEntity> list = query.list();
-      assertEquals(2, list.size());
+      DataGrid
+         .withRemoteCacheManager(queryData())
+         .apply(createClientConfiguration());
    }
 
    @RunAsClient
@@ -141,11 +159,26 @@ public class PersistedIndexSurvivesTest {
    @InSequence(4)
    @Test
    public void query_data_after_restart() {
-      final QueryFactory queryFactory = Search.getQueryFactory(cache);
-      final Query query = queryFactory
-         .create("from sample_bank_account.AnalyzerTestEntity where f1:'test'");
-      List<AnalyzerTestEntity> list = query.list();
-      assertEquals(2, list.size());
+      DataGrid
+         .withRemoteCacheManager(queryData())
+         .apply(createClientConfiguration());
+   }
+
+   private Function<RemoteCacheManager, RemoteCacheManager> queryData() {
+      return remoteCacheManager -> {
+         initProtoSchema(remoteCacheManager);
+
+         RemoteCache<String, AnalyzerTestEntity> cache =
+            remoteCacheManager.getCache("custom-persistent-indexed");
+
+         final QueryFactory queryFactory = Search.getQueryFactory(cache);
+         final Query query = queryFactory
+            .create("from sample_bank_account.AnalyzerTestEntity where f1:'test'");
+         List<AnalyzerTestEntity> list = query.list();
+         assertEquals(2, list.size());
+
+         return remoteCacheManager;
+      };
    }
 
    public static void initProtoSchema(RemoteCacheManager remoteCacheManager) {
