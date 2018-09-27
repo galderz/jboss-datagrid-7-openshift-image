@@ -183,9 +183,20 @@ install-templates:
 	oc create -f services/datagrid-service-template.json || true
 .PHONY: install-templates
 
-clear-templates:
+clear-statefulsets:
+	oc delete statefulset -l application=cache-service || true
+	sleep 60
+	oc delete pvc -l application=cache-service
+	oc delete statefulset -l application=datagrid-service || true
+	sleep 60
+	oc delete pvc -l application=datagrid-service
+.PHONY: clear-statefulsets
+
+clear-templates: clear-statefulsets
 	oc delete all,secrets,sa,templates,configmaps,daemonsets,clusterroles,rolebindings,serviceaccounts --selector=template=cache-service || true
 	oc delete template cache-service || true
+	oc delete all,secrets,sa,templates,configmaps,daemonsets,clusterroles,rolebindings,serviceaccounts --selector=template=datagrid-service || true
+	oc delete template datagrid-service || true
 .PHONY: clear-templates
 
 test-cache-service-manually:
