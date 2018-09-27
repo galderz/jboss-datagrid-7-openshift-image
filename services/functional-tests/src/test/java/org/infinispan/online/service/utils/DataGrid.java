@@ -2,53 +2,52 @@ package org.infinispan.online.service.utils;
 
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
-import org.infinispan.commons.logging.Log;
-import org.infinispan.commons.logging.LogFactory;
-import org.infinispan.commons.util.Either;
 
+import java.util.Objects;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class DataGrid {
-
-   private static final Log log = LogFactory.getLog(DataGrid.class);
 
    private DataGrid() {
    }
 
    public static Function<ConfigurationBuilder, Void> withRemoteCacheManager(
-      Function<RemoteCacheManager, RemoteCacheManager> fun) {
+      Consumer<RemoteCacheManager> fun) {
 
-      Function<ConfigurationBuilder, RemoteCacheManager> createFun =
+      CachingFunction<ConfigurationBuilder, Void> createFun =
          createRemoteCacheManager();
 
-      Function<RemoteCacheManager, Either<Object[], RemoteCacheManager>> launderFun =
-         remote -> {
-            try {
-               return Either.newRight(fun.apply(remote));
-            } catch (Throwable t) {
-               return Either.newLeft(new Object[]{t, remote});
+      CachingFunction<Void, Throwable> launderFun =
+         new CachingFunction<Void, Throwable>() {
+            @Override
+            public Throwable apply(Void x) {
+               try {
+                  fun.accept(getRemoteCacheManager());
+                  return null;
+               } catch (Throwable t) {
+                  return t;
+               }
             }
          };
 
-      Function<Either<Object[], RemoteCacheManager>, Void> destroyFun =
+      CachingFunction<Throwable, Void> destroyFun =
          destroyRemoteCacheManager();
 
       return createFun.andThen(launderFun).andThen(destroyFun);
    }
 
-   private static Function<Either<Object[], RemoteCacheManager>, Void> destroyRemoteCacheManager() {
-      return result -> {
-         switch (result.type()) {
-            case LEFT:
-               final Throwable throwable = (Throwable) result.left()[0];
-               safelyStopRemoteCacheManager().apply((RemoteCacheManager) result.left()[1]);
-               throw new AssertionError(throwable);
-            case RIGHT:
-               safelyStopRemoteCacheManager().apply(result.right());
-               break;
-         }
+   private static CachingFunction<Throwable, Void> destroyRemoteCacheManager() {
+      return new CachingFunction<Throwable, Void>() {
+         @Override
+         public Void apply(Throwable throwable) {
+            safelyStopRemoteCacheManager().apply(getRemoteCacheManager());
 
-         return null;
+            if (throwable != null)
+               throw new AssertionError(throwable);
+
+            return null;
+         }
       };
    }
 
@@ -64,8 +63,32 @@ public class DataGrid {
       };
    }
 
-   private static Function<ConfigurationBuilder, RemoteCacheManager> createRemoteCacheManager() {
-      return cfg -> new RemoteCacheManager(cfg.build());
+   private static CachingFunction<ConfigurationBuilder, Void> createRemoteCacheManager() {
+      return new CachingFunction<ConfigurationBuilder, Void>() {
+         @Override
+         public Void apply(ConfigurationBuilder cfg) {
+            setRemoteCacheManager(new RemoteCacheManager(cfg.build()));
+            return null;
+         }
+      };
+   }
+
+   private static abstract class CachingFunction<T, R> implements Function<T, R> {
+      RemoteCacheManager remoteCacheManager;
+
+      RemoteCacheManager getRemoteCacheManager() {
+         return remoteCacheManager;
+      }
+
+      void setRemoteCacheManager(RemoteCacheManager remoteCacheManager) {
+         this.remoteCacheManager = remoteCacheManager;
+      }
+
+      <V> Function<T, V> andThen(CachingFunction<? super R, ? extends V> after) {
+         Objects.requireNonNull(after);
+         after.setRemoteCacheManager(remoteCacheManager);
+         return (T t) -> after.apply(apply(t));
+      }
    }
 
 }

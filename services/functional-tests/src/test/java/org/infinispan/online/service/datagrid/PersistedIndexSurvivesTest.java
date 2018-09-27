@@ -43,7 +43,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -92,7 +92,7 @@ public class PersistedIndexSurvivesTest {
    @InSequence(1)
    @Test
    public void put_on_persisted_cache() {
-      Function<RemoteCacheManager, RemoteCacheManager> test =
+      Consumer<RemoteCacheManager> test =
          remoteCacheManager -> {
             initProtoSchema(remoteCacheManager);
 
@@ -106,8 +106,6 @@ public class PersistedIndexSurvivesTest {
             cache.put("analyzed1", new AnalyzerTestEntity("tested 123", 3));
             cache.put("analyzed2", new AnalyzerTestEntity("testing 1234", 3));
             cache.put("analyzed3", new AnalyzerTestEntity("xyz", null));
-
-            return remoteCacheManager;
          };
 
       DataGrid
@@ -164,7 +162,7 @@ public class PersistedIndexSurvivesTest {
          .apply(createClientConfiguration());
    }
 
-   private Function<RemoteCacheManager, RemoteCacheManager> queryData() {
+   private Consumer<RemoteCacheManager> queryData() {
       return remoteCacheManager -> {
          initProtoSchema(remoteCacheManager);
 
@@ -176,8 +174,6 @@ public class PersistedIndexSurvivesTest {
             .create("from sample_bank_account.AnalyzerTestEntity where f1:'test'");
          List<AnalyzerTestEntity> list = query.list();
          assertEquals(2, list.size());
-
-         return remoteCacheManager;
       };
    }
 
