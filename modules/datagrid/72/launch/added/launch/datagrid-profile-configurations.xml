@@ -1,9 +1,9 @@
-                <distributed-cache-configuration name="persistent-shared-index">
+                <distributed-cache-configuration name="persistent-shared-indexed">
                    <indexing index="LOCAL">
                       <property name="default.indexmanager">org.infinispan.query.indexmanager.InfinispanIndexManager</property>
-                      <property name="default.metadata_cachename">persistent-shared-index-metadata</property>
-                      <property name="default.data_cachename">persistent-shared-index-data</property>
-                      <property name="default.locking_cachename">persistent-shared-index-locking</property>
+                      <property name="default.metadata_cachename">persistent-shared-indexed-metadata</property>
+                      <property name="default.data_cachename">persistent-shared-indexed-data</property>
+                      <property name="default.locking_cachename">persistent-shared-indexed-locking</property>
                    </indexing>
                    <file-store shared="false" fetch-state="true" passivation="false"/>
                 </distributed-cache-configuration>

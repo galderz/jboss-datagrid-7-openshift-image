@@ -105,9 +105,9 @@ public class PersistedIndexSurvivesTest {
 
       remoteCacheManager.administration()
          .withFlags(CacheContainerAdmin.AdminFlag.PERMANENT)
-         .createCache("custom-persist-indexed", "persistent-indexed");
+         .createCache("custom-persistent-indexed", "persistent-shared-indexed");
 
-      cache = remoteCacheManager.getCache("custom-persist-indexed");
+      cache = remoteCacheManager.getCache("custom-persistent-indexed");
 
       cache.put("analyzed1", new AnalyzerTestEntity("tested 123", 3));
       cache.put("analyzed2", new AnalyzerTestEntity("testing 1234", 3));
