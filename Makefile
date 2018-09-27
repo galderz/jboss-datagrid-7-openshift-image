@@ -201,8 +201,11 @@ clear-templates: clear-statefulsets
 
 test-cache-service-manually:
 	oc set image-lookup $(DEV_IMAGE_NAME)
-	oc process cache-service -p APPLICATION_USER=test \
-	-p APPLICATION_USER_PASSWORD=test -p IMAGE=$(_DEV_IMAGE_STREAM) | oc create -f -
+	oc new-app cache-service \
+	-p APPLICATION_USER=test \
+	-p APPLICATION_USER_PASSWORD=test \
+	-p IMAGE=$(_DEV_IMAGE_STREAM) \
+	-e SCRIPT_DEBUG=true
 	oc expose svc/cache-service-https || true
 	oc expose svc/cache-service-hotrod || true
 	oc get routes
@@ -210,8 +213,11 @@ test-cache-service-manually:
 
 test-datagrid-service-manually:
 	oc set image-lookup $(DEV_IMAGE_NAME)
-	oc process datagrid-service -p APPLICATION_USER=test \
-	-p APPLICATION_USER_PASSWORD=test -p IMAGE=$(_DEV_IMAGE_STREAM) | oc create -f -
+	oc new-app datagrid-service \
+	-p APPLICATION_USER=test \
+	-p APPLICATION_USER_PASSWORD=test \
+	-p IMAGE=$(_DEV_IMAGE_STREAM) \
+	-e SCRIPT_DEBUG=true
 	oc expose svc/datagrid-service-https || true
 	oc expose svc/datagrid-service-hotrod || true
 	oc get routes
