@@ -73,7 +73,7 @@ function configure() {
          export DEFAULT_CACHE_MEMORY_STORAGE_TYPE="off-heap"
          export ENABLE_OVERLAY_CONFIGURATION_STORAGE="true"
 
-         export PROFILE_CACHE_CONFIGURATIONS="datagrid-profile-configurations.xml"
+         export PROFILE_CACHE_CONFIGURATIONS=$JBOSS_HOME/bin/launch/datagrid-profile-configurations.xml
       fi
    fi
 }
