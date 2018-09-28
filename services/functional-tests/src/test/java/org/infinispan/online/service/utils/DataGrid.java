@@ -5,90 +5,55 @@ import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
 
 import java.util.Objects;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
-public class DataGrid {
+public final class DataGrid {
 
    private DataGrid() {
    }
 
-   public static Function<ConfigurationBuilder, Void> withRemoteCacheManager(
-      Consumer<RemoteCacheManager> fun) {
+   public static Function<ConfigurationBuilder, RemoteCacheManager> createRemoteCacheManager() {
+      return new Function<ConfigurationBuilder, RemoteCacheManager>() {
 
-      CachingFunction<ConfigurationBuilder, Void> createFun =
-         createRemoteCacheManager();
+         RemoteCacheManager remoteCacheManager;
 
-      CachingFunction<Void, Throwable> launderFun =
-         new CachingFunction<Void, Throwable>() {
-            @Override
-            public Throwable apply(Void x) {
+         @Override
+         public RemoteCacheManager apply(ConfigurationBuilder cfg) {
+            System.out.println("Called create");
+            this.remoteCacheManager = new RemoteCacheManager(cfg.build());
+            return this.remoteCacheManager;
+         }
+
+         @Override
+         public Consumer<ConfigurationBuilder> andThenConsume(Consumer<? super RemoteCacheManager> after) {
+            Objects.requireNonNull(after);
+
+            return cfg -> {
                try {
-                  fun.accept(getRemoteCacheManager());
-                  return null;
-               } catch (Throwable t) {
-                  return t;
+                  after.accept(apply(cfg));
+               } finally {
+                  try {
+                     this.remoteCacheManager.stop();
+                     System.out.println("Called destroy");
+                  } catch (Throwable throwable) {
+                     // ignore
+                  }
                }
-            }
-         };
-
-      CachingFunction<Throwable, Void> destroyFun =
-         destroyRemoteCacheManager();
-
-      return createFun.andThen(launderFun).andThen(destroyFun);
-   }
-
-   private static CachingFunction<Throwable, Void> destroyRemoteCacheManager() {
-      return new CachingFunction<Throwable, Void>() {
-         @Override
-         public Void apply(Throwable throwable) {
-            safelyStopRemoteCacheManager().apply(getRemoteCacheManager());
-
-            if (throwable != null)
-               throw new AssertionError(throwable);
-
-            return null;
+            };
          }
+
       };
    }
 
-   private static Function<RemoteCacheManager, Void> safelyStopRemoteCacheManager() {
-      return remote -> {
-         try {
-            remote.stop();
-         } catch (Throwable t) {
-            // ignore
-         }
+   public interface Function<T, R> extends java.util.function.Function<T, R> {
 
-         return null;
-      };
-   }
-
-   private static CachingFunction<ConfigurationBuilder, Void> createRemoteCacheManager() {
-      return new CachingFunction<ConfigurationBuilder, Void>() {
-         @Override
-         public Void apply(ConfigurationBuilder cfg) {
-            setRemoteCacheManager(new RemoteCacheManager(cfg.build()));
-            return null;
-         }
-      };
-   }
-
-   private static abstract class CachingFunction<T, R> implements Function<T, R> {
-      RemoteCacheManager remoteCacheManager;
-
-      RemoteCacheManager getRemoteCacheManager() {
-         return remoteCacheManager;
-      }
-
-      void setRemoteCacheManager(RemoteCacheManager remoteCacheManager) {
-         this.remoteCacheManager = remoteCacheManager;
-      }
-
-      <V> Function<T, V> andThen(CachingFunction<? super R, ? extends V> after) {
+      default Consumer<T> andThenConsume(Consumer<? super R> after) {
          Objects.requireNonNull(after);
-         after.setRemoteCacheManager(remoteCacheManager);
-         return (T t) -> after.apply(apply(t));
+
+         return (T t) -> {
+            after.accept(apply(t));
+         };
       }
+
    }
 
 }

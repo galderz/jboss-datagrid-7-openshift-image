@@ -44,6 +44,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 
@@ -109,8 +110,9 @@ public class PersistedIndexSurvivesTest {
          };
 
       DataGrid
-         .withRemoteCacheManager(test)
-         .apply(createClientConfiguration());
+         .createRemoteCacheManager()
+         .andThenConsume(test)
+         .accept(createClientConfiguration());
    }
 
    private ConfigurationBuilder createClientConfiguration() {
@@ -136,8 +138,9 @@ public class PersistedIndexSurvivesTest {
    @Test
    public void query_data_after_put() {
       DataGrid
-         .withRemoteCacheManager(queryData())
-         .apply(createClientConfiguration());
+         .createRemoteCacheManager()
+         .andThenConsume(queryData())
+         .accept(createClientConfiguration());
    }
 
    @RunAsClient
@@ -158,8 +161,9 @@ public class PersistedIndexSurvivesTest {
    @Test
    public void query_data_after_restart() {
       DataGrid
-         .withRemoteCacheManager(queryData())
-         .apply(createClientConfiguration());
+         .createRemoteCacheManager()
+         .andThenConsume(queryData())
+         .accept(createClientConfiguration());
    }
 
    private Consumer<RemoteCacheManager> queryData() {
