@@ -20,8 +20,11 @@ oc describe pods
 echo "---- Docker PS ----"
 docker ps
 
-echo "---- Caching Service logs ----"
+echo "---- Cache Service logs ----"
 oc logs cache-service-0
+
+echo "---- Datagrid Service logs ----"
+oc logs datagrid-service-0
 
 echo "---- Test Runner logs ----"
 oc logs testrunner
