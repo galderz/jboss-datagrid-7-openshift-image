@@ -5,10 +5,9 @@ set -x
 delete_stateful_set() {
   local service=$1
 
-  #  grace=$(oc get pods $service-0 --template '{{.spec.terminationGracePeriodSeconds}}')
-  grace=60
   oc delete statefulset -l application=$service
-  sleep $grace
+  # grace=$(oc get pods $service-0 --template '{{.spec.terminationGracePeriodSeconds}}')
+  # sleep $grace
   oc delete pvc -l application=$service
 }
 
