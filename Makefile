@@ -185,10 +185,8 @@ install-templates:
 
 clear-statefulsets:
 	oc delete statefulset -l application=cache-service || true
-	sleep 60
-	oc delete pvc -l application=cache-service
 	oc delete statefulset -l application=datagrid-service || true
-	sleep 60
+	oc delete pvc -l application=cache-service
 	oc delete pvc -l application=datagrid-service
 .PHONY: clear-statefulsets
 
