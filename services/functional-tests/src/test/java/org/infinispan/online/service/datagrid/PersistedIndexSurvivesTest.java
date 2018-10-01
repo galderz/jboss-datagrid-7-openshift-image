@@ -134,7 +134,7 @@ public class PersistedIndexSurvivesTest {
       }
    }
 
-   @InSequence(2)
+   @InSequence(1)
    @Test
    public void query_data_after_put() {
       DataGrid
