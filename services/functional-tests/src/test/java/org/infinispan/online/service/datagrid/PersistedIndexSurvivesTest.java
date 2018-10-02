@@ -115,6 +115,38 @@ public class PersistedIndexSurvivesTest {
          .accept(createClientConfiguration());
    }
 
+   @InSequence(2)
+   @Test
+   public void query_data_after_put() {
+      DataGrid
+         .createRemoteCacheManager()
+         .andThenConsume(queryData())
+         .accept(createClientConfiguration());
+   }
+
+   @RunAsClient
+   @InSequence(3) //must be run from the client where "oc" is installed
+   @Test
+   public void scale_down() {
+      scalingTester.scaleDownStatefulSet(0, SERVICE_NAME, client, commandlineClient, readinessCheck);
+   }
+
+   @RunAsClient
+   @InSequence(4) //must be run from the client where "oc" is installed
+   @Test
+   public void scale_up() {
+      scalingTester.scaleUpStatefulSet(1, SERVICE_NAME, client, commandlineClient, readinessCheck);
+   }
+
+   @InSequence(5)
+   @Test
+   public void query_data_after_restart() {
+      DataGrid
+         .createRemoteCacheManager()
+         .andThenConsume(queryData())
+         .accept(createClientConfiguration());
+   }
+
    private ConfigurationBuilder createClientConfiguration() {
       URL hotRodService = getServiceWithName();
       final TrustStore trustStore = new TrustStore(client, SERVICE_NAME);
@@ -132,38 +164,6 @@ public class PersistedIndexSurvivesTest {
       } catch (MalformedURLException e) {
          throw new AssertionError(e);
       }
-   }
-
-   @InSequence(1)
-   @Test
-   public void query_data_after_put() {
-      DataGrid
-         .createRemoteCacheManager()
-         .andThenConsume(queryData())
-         .accept(createClientConfiguration());
-   }
-
-   @RunAsClient
-   @InSequence(2) //must be run from the client where "oc" is installed
-   @Test
-   public void scale_down() {
-      scalingTester.scaleDownStatefulSet(0, SERVICE_NAME, client, commandlineClient, readinessCheck);
-   }
-
-   @RunAsClient
-   @InSequence(3) //must be run from the client where "oc" is installed
-   @Test
-   public void scale_up() {
-      scalingTester.scaleUpStatefulSet(1, SERVICE_NAME, client, commandlineClient, readinessCheck);
-   }
-
-   @InSequence(4)
-   @Test
-   public void query_data_after_restart() {
-      DataGrid
-         .createRemoteCacheManager()
-         .andThenConsume(queryData())
-         .accept(createClientConfiguration());
    }
 
    private Consumer<RemoteCacheManager> queryData() {
