@@ -1,6 +1,5 @@
 package org.infinispan.online.service.datagrid;
 
-import com.sun.tools.javac.tree.DCTree;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
