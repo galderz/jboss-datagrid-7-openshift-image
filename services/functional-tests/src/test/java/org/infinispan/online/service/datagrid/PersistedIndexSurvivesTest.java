@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -94,6 +95,8 @@ public class PersistedIndexSurvivesTest {
    @InSequence(1)
    @Test
    public void put_on_persisted_cache() {
+      final long start = System.nanoTime();
+
       Consumer<RemoteCacheManager> test =
          remoteCacheManager -> {
             initProtoSchema(remoteCacheManager);
@@ -111,6 +114,9 @@ public class PersistedIndexSurvivesTest {
 
             for (int i = 0; i < 1000; i++) {
                log.info("Log line " + i);
+               long now = System.nanoTime();
+               long duration = now - start;
+               log.info("Run for: " + TimeUnit.NANOSECONDS.toSeconds(duration) +" seconds");
             }
 
             log.info("Store data");
