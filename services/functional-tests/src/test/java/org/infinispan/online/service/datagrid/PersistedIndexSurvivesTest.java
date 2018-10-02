@@ -101,12 +101,19 @@ public class PersistedIndexSurvivesTest {
                .withFlags(CacheContainerAdmin.AdminFlag.PERMANENT)
                .createCache("custom-persistent-indexed", "persistent-shared-indexed");
 
+            log.info("Create cache from template");
             RemoteCache<String, AnalyzerTestEntity> cache =
                remoteCacheManager.getCache("custom-persistent-indexed");
 
+            log.info("Store data");
             cache.put("analyzed1", new AnalyzerTestEntity("tested 123", 3));
             cache.put("analyzed2", new AnalyzerTestEntity("testing 1234", 3));
             cache.put("analyzed3", new AnalyzerTestEntity("xyz", null));
+
+            log.info("Query data");
+            queryData().accept(remoteCacheManager);
+
+            log.info("Query complete");
          };
 
       DataGrid
@@ -115,36 +122,35 @@ public class PersistedIndexSurvivesTest {
          .accept(createClientConfiguration());
    }
 
-   @InSequence(2)
+   @RunAsClient
+   @InSequence(2) //must be run from the client where "oc" is installed
    @Test
-   public void query_data_after_put() {
-      DataGrid
-         .createRemoteCacheManager()
-         .andThenConsume(queryData())
-         .accept(createClientConfiguration());
+   public void scale_down() {
+      log.info("Scale down...");
+      scalingTester.scaleDownStatefulSet(0, SERVICE_NAME, client, commandlineClient, readinessCheck);
+      log.info("Scaled down");
    }
 
    @RunAsClient
    @InSequence(3) //must be run from the client where "oc" is installed
    @Test
-   public void scale_down() {
-      scalingTester.scaleDownStatefulSet(0, SERVICE_NAME, client, commandlineClient, readinessCheck);
-   }
-
-   @RunAsClient
-   @InSequence(4) //must be run from the client where "oc" is installed
-   @Test
    public void scale_up() {
+      log.info("Scale up...");
       scalingTester.scaleUpStatefulSet(1, SERVICE_NAME, client, commandlineClient, readinessCheck);
+      log.info("Scaled up");
    }
 
-   @InSequence(5)
+   @InSequence(4)
    @Test
    public void query_data_after_restart() {
+      log.info("Query data after restart");
+
       DataGrid
          .createRemoteCacheManager()
          .andThenConsume(queryData())
          .accept(createClientConfiguration());
+
+      log.info("Query complete");
    }
 
    private ConfigurationBuilder createClientConfiguration() {
