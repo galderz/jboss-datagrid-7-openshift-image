@@ -109,6 +109,10 @@ public class PersistedIndexSurvivesTest {
             log.info("Cache is null? " + (cache == null));
             assertNotNull(cache);
 
+            for (int i = 0; i < 100; i++) {
+               log.info("Log line " + i);
+            }
+
             log.info("Store data");
             cache.put("analyzed1", new AnalyzerTestEntity("tested 123", 3));
             cache.put("analyzed2", new AnalyzerTestEntity("testing 1234", 3));
