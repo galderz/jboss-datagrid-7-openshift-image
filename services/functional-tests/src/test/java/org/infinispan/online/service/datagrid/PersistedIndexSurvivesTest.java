@@ -47,6 +47,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(ArquillianConditionalRunner.class)
 @RequiresOpenshift
@@ -105,6 +106,9 @@ public class PersistedIndexSurvivesTest {
             RemoteCache<String, AnalyzerTestEntity> cache =
                remoteCacheManager.getCache("custom-persistent-indexed");
 
+            log.info("Cache is null? " + (cache == null));
+            assertNotNull(cache);
+
             log.info("Store data");
             cache.put("analyzed1", new AnalyzerTestEntity("tested 123", 3));
             cache.put("analyzed2", new AnalyzerTestEntity("testing 1234", 3));
@@ -122,36 +126,36 @@ public class PersistedIndexSurvivesTest {
          .accept(createClientConfiguration());
    }
 
-   @RunAsClient
-   @InSequence(2) //must be run from the client where "oc" is installed
-   @Test
-   public void scale_down() {
-      log.info("Scale down...");
-      scalingTester.scaleDownStatefulSet(0, SERVICE_NAME, client, commandlineClient, readinessCheck);
-      log.info("Scaled down");
-   }
-
-   @RunAsClient
-   @InSequence(3) //must be run from the client where "oc" is installed
-   @Test
-   public void scale_up() {
-      log.info("Scale up...");
-      scalingTester.scaleUpStatefulSet(1, SERVICE_NAME, client, commandlineClient, readinessCheck);
-      log.info("Scaled up");
-   }
-
-   @InSequence(4)
-   @Test
-   public void query_data_after_restart() {
-      log.info("Query data after restart");
-
-      DataGrid
-         .createRemoteCacheManager()
-         .andThenConsume(queryData())
-         .accept(createClientConfiguration());
-
-      log.info("Query complete");
-   }
+//   @RunAsClient
+//   @InSequence(2) //must be run from the client where "oc" is installed
+//   @Test
+//   public void scale_down() {
+//      log.info("Scale down...");
+//      scalingTester.scaleDownStatefulSet(0, SERVICE_NAME, client, commandlineClient, readinessCheck);
+//      log.info("Scaled down");
+//   }
+//
+//   @RunAsClient
+//   @InSequence(3) //must be run from the client where "oc" is installed
+//   @Test
+//   public void scale_up() {
+//      log.info("Scale up...");
+//      scalingTester.scaleUpStatefulSet(1, SERVICE_NAME, client, commandlineClient, readinessCheck);
+//      log.info("Scaled up");
+//   }
+//
+//   @InSequence(4)
+//   @Test
+//   public void query_data_after_restart() {
+//      log.info("Query data after restart");
+//
+//      DataGrid
+//         .createRemoteCacheManager()
+//         .andThenConsume(queryData())
+//         .accept(createClientConfiguration());
+//
+//      log.info("Query complete");
+//   }
 
    private ConfigurationBuilder createClientConfiguration() {
       URL hotRodService = getServiceWithName();
