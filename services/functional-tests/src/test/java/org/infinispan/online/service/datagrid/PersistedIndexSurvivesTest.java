@@ -1,5 +1,6 @@
 package org.infinispan.online.service.datagrid;
 
+import com.sun.tools.javac.tree.DCTree;
 import io.fabric8.openshift.client.OpenShiftClient;
 import org.arquillian.cube.openshift.impl.requirement.RequiresOpenshift;
 import org.arquillian.cube.requirement.ArquillianConditionalRunner;
@@ -109,19 +110,24 @@ public class PersistedIndexSurvivesTest {
             log.info("Cache is null? " + (cache == null));
             assertNotNull(cache);
 
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 1000; i++) {
                log.info("Log line " + i);
             }
 
             log.info("Store data");
-            cache.put("analyzed1", new AnalyzerTestEntity("tested 123", 3));
-            cache.put("analyzed2", new AnalyzerTestEntity("testing 1234", 3));
-            cache.put("analyzed3", new AnalyzerTestEntity("xyz", null));
+            try {
+               cache.put("analyzed1", new AnalyzerTestEntity("tested 123", 3));
+               cache.put("analyzed2", new AnalyzerTestEntity("testing 1234", 3));
+               cache.put("analyzed3", new AnalyzerTestEntity("xyz", null));
 
-            log.info("Query data");
-            queryData().accept(remoteCacheManager);
+               log.info("Query data");
+               queryData().accept(remoteCacheManager);
 
-            log.info("Query complete");
+               log.info("Query complete");
+            } catch (Throwable t) {
+               log.error("Error", t);
+               throw t;
+            }
          };
 
       DataGrid
