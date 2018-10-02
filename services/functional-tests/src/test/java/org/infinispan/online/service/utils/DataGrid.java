@@ -2,11 +2,15 @@ package org.infinispan.online.service.utils;
 
 import org.infinispan.client.hotrod.RemoteCacheManager;
 import org.infinispan.client.hotrod.configuration.ConfigurationBuilder;
+import org.infinispan.commons.logging.Log;
+import org.infinispan.commons.logging.LogFactory;
 
 import java.util.Objects;
 import java.util.function.Consumer;
 
 public final class DataGrid {
+
+   private static final Log log = LogFactory.getLog(DataGrid.class);
 
    private DataGrid() {
    }
@@ -30,10 +34,14 @@ public final class DataGrid {
             return cfg -> {
                try {
                   after.accept(apply(cfg));
+               } catch (Throwable t) {
+                 log.error("Unexpected exception", t);
+                 throw t;
                } finally {
                   try {
+                     log.info("Stopping remote cache manager");
                      this.remoteCacheManager.stop();
-                     System.out.println("Called destroy");
+                     log.info("Stopped remote cache manager");
                   } catch (Throwable throwable) {
                      // ignore
                   }
