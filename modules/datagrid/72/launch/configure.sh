@@ -30,5 +30,5 @@ cp -p ${ADDED_DIR}/launch/infinispan_service_profiles.sh $JBOSS_HOME/bin/launch
 cp -p ${ADDED_DIR}/launch/service-memory.conf $JBOSS_HOME/bin/launch
 
 # Update journald
-sudo cp ${ADDED_DIR}/launch/journald.conf /etc/systemd
-systemctl restart systemd-journald
+# sudo cp ${ADDED_DIR}/launch/journald.conf /etc/systemd
+# systemctl restart systemd-journald
