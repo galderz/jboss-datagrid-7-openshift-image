@@ -224,7 +224,7 @@ packages:
     - PyYAML
     - openssl
 artifacts:
-  - name: jboss-datagrid-server-9.4.11-SNAPSHOT.zip
+  - name: jboss-datagrid-server-9.4.12.Final.zip
     description: "Artifact is available on Customer Portal: https://access.redhat.com/jbossnetwork/restricted/softwareDownload.html?softwareId=64771&product=data.grid"
     md5: ##MD5##
 
